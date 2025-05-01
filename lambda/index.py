@@ -111,15 +111,13 @@ def lambda_handler(event, context):
         #response_body = json.loads(response['body'].read())
         #print("Bedrock response:", json.dumps(response_body, default=str))
 
-
         with request.urlopen(req) as res:
             print("レスポンスコード： ", res.getcode())
-            #decoded_res = res.read().decode("utf-8")
-            # body = res.read()
-            body = json.load(res.read().decode("utf-8"))
+            body_str = res.read().decode("utf-8")
+            print("body_str： ", body_str)
+            body = json.loads(body_str)
             print("生成結果:", body["generated_text"])
-
-
+           
             # 応答の検証
             #if not response_body.get('output') or not response_body['output'].get('message') or not response_body['output']['message'].get('content'):
             #    raise Exception("No response content from the model")
