@@ -3,6 +3,7 @@ import json
 import os
 import boto3
 import re  # 正規表現モジュールをインポート
+import numpy as np
 from botocore.exceptions import ClientError
 
 
@@ -13,6 +14,27 @@ def extract_region_from_arn(arn):
     if match:
         return match.group(1)
     return "us-east-1"  # デフォルト値
+
+
+def bedrock_embedding(input_str: str):
+    bedrock_body = {
+        "inputText": input_str
+    }
+    body_bytes = json.dumps(bedrock_body).encode('utf-8')
+    response = bedrock_client.invoke_model(
+        accept="*/*",
+        body=body_bytes,
+        contentType="application/json",
+        modelId="amazon.titan-embed-text-v1",
+    )
+    response_body = json.loads(response.get("body").read())
+
+    #print(response_body.get("inputTextTokenCount"))
+    embedding = response_body.get("embedding")
+    return embedding
+
+def cosine_similarity(v1, v2):
+    return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 
 # グローバル変数としてクライアントを初期化（初期値）
 bedrock_client = None
@@ -51,7 +73,14 @@ def lambda_handler(event, context):
         
 
 
+        a = bedrock_embedding("埋め込みの実験のためのサンプルテキストです")
+        b = bedrock_embedding("味噌煮込みうどん。")
+        c = bedrock_embedding("This is Sample Text. for Experimental of embeddings.")
 
+        print("cosin similarity")
+        print(cosine_similarity(a, b))
+        print(cosine_similarity(b, c))
+        print(cosine_similarity(a, c))
 
 
         # 会話履歴を使用
