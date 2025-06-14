@@ -25,7 +25,7 @@ def bedrock_embedding(input_str: str):
         accept="*/*",
         body=body_bytes,
         contentType="application/json",
-        modelId="amazon.titan-embed-text-v1",
+        modelId="amazon.titan-embed-text-v2:0",
     )
     response_body = json.loads(response.get("body").read())
 
@@ -77,7 +77,7 @@ def lambda_handler(event, context):
         b = bedrock_embedding("味噌煮込みうどん。")
         c = bedrock_embedding("This is Sample Text. for Experimental of embeddings.")
 
-        print("cosin similarity")
+        print("cosine similarity")
         print(cosine_similarity(a, b))
         print(cosine_similarity(b, c))
         print(cosine_similarity(a, c))
