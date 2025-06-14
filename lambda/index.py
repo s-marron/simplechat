@@ -18,7 +18,8 @@ def extract_region_from_arn(arn):
 bedrock_client = None
 
 # モデルID
-MODEL_ID = os.environ.get("MODEL_ID", "us.amazon.nova-lite-v1:0")
+MODEL_ID_embed = os.environ.get("MODEL_ID", "amazon.titan-embed-text-v2:0")
+MODEL_ID_decode = os.environ.get("MODEL_ID", "us.amazon.nova-lite-v1:0")
 
 
 def lambda_handler(event, context):
@@ -40,14 +41,22 @@ def lambda_handler(event, context):
         
         # リクエストボディの解析
         body = json.loads(event['body'])
-        message = body['message']
-        conversation_history = body.get('conversationHistory', [])
+        prompt_message = "You receive serveral questions in a class separated by comma. Summarize those questions into one."
+        message = prompt_message + body['message']
+        # conversation_history = body.get('conversationHistory', []) # 履歴は使用しない
         
         print("Processing message:", message)
-        print("Using model:", MODEL_ID)
+        print("Using model for embedding:", MODEL_ID_embed)
+        print("Using model for decoder:", MODEL_ID_decode)
         
+
+
+
+
+
         # 会話履歴を使用
-        messages = conversation_history.copy()
+        # messages = conversation_history.copy()
+        messages = [] # 履歴は使用しない
         
         # ユーザーメッセージを追加
         messages.append({
@@ -85,7 +94,7 @@ def lambda_handler(event, context):
         
         # invoke_model APIを呼び出し
         response = bedrock_client.invoke_model(
-            modelId=MODEL_ID,
+            modelId=MODEL_ID_decode,
             body=json.dumps(request_payload),
             contentType="application/json"
         )
